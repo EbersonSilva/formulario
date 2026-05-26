@@ -584,7 +584,7 @@
         let userAnswers = new Array(questions.length).fill(null);
         let userName = '';
         // Cole a URL do seu Google Apps Script WebApp abaixo após deploy
-        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxtcRP6PbDD9kDPHJDFFxueEE6SXvGSBThEDhRIbpawsZAwm6fF_GqoEERQyqzV6hdMQ/exec';
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz2qTpYViCVBcAhsVe7iDZWd4aQ4CbEvJLEc_cAU0hnYxfPGfbSaQtSIKGnU-Kgjy6VBQ/exec';
 
         function startQuiz(event) {
             event.preventDefault();
@@ -727,29 +727,45 @@
             document.getElementById('quizContainer').classList.remove('active');
             document.getElementById('resultContainer').classList.add('active');
 
-            // Envia os resultados ao Google Sheets via Apps Script (se a URL estiver configurada)
+            // Envia os resultados ao Google Sheets sem preflight CORS.
+            // Apps Script Web App não responde como API CORS padrão, então usamos sendBeacon
+            // ou um fetch simples em modo no-cors para apenas registrar os dados.
             if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL.length > 10) {
-                try {
-                    const payload = {
-                        name: userName,
-                        score: correctCount,
-                        percentage: Number(percentage.toFixed(1)),
-                        answers: userAnswers.map(a => a === null ? null : String.fromCharCode(97 + a)),
-                        timestamp: new Date().toISOString()
-                    };
+                const payload = {
+                    name: userName,
+                    score: correctCount,
+                    percentage: Number(percentage.toFixed(1)),
+                    answers: userAnswers.map(a => a === null ? null : String.fromCharCode(97 + a)),
+                    timestamp: new Date().toISOString()
+                };
 
-                    fetch(GOOGLE_APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    }).then(resp => {
-                        // opcional: tratar resposta do Apps Script
-                        return resp.json().catch(() => ({}));
-                    }).then(data => {
-                        console.log('Resultado enviado ao Sheets:', data);
-                    }).catch(err => console.warn('Erro ao enviar resultados:', err));
+                const body = JSON.stringify(payload);
+                let dispatched = false;
+
+                try {
+                    if (navigator.sendBeacon) {
+                        dispatched = navigator.sendBeacon(
+                            GOOGLE_APPS_SCRIPT_URL,
+                            new Blob([body], { type: 'text/plain;charset=UTF-8' })
+                        );
+                    }
+
+                    if (!dispatched) {
+                        fetch(GOOGLE_APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                            body: body,
+                            keepalive: true
+                        }).catch(function(err) {
+                            console.warn('Erro ao enviar resultados:', err);
+                        });
+                    }
+
+                    console.log('Envio ao Sheets disparado.', dispatched ? 'sendBeacon' : 'fetch no-cors');
                 } catch (e) {
                     console.warn('Envio assíncrono falhou:', e);
+                    alert('Não foi possível disparar o envio para a planilha. Verifique a URL do Apps Script.');
                 }
             }
         }
