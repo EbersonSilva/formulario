@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário Interativo - Governança de TI e ISO/IEC 38500</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Tela de Entrada de Nome */
+        .name-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+        .name-container.hidden {
+            display: none;
+        }
+
+        .name-form {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .name-form h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .name-form p {
+            color: #666;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-start {
+            width: 100%;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-start:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-container {
+            display: none;
+        }
+
+        .quiz-container.active {
+            display: block;
+        }
+
+        .user-info {
+            background: #f0f4ff;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .question-container {
+            margin-bottom: 35px;
+            display: none;
+        }
+
+        .question-container.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .question-text {
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f9f9f9;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 15px;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            accent-color: #667eea;
+        }
+
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-prev {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-prev:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            display: none;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        .result-container.active {
+            display: block;
+        }
+
+        .result-user-name {
+            font-size: 24px;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .result-score {
+            font-size: 60px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 20px 0;
+        }
+
+        .result-percentage {
+            font-size: 32px;
+            font-weight: bold;
+            color: #764ba2;
+            margin: 15px 0;
+        }
+
+        .result-message {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .result-details {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .result-details h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .result-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item.correct {
+            color: #4caf50;
+        }
+
+        .result-item.incorrect {
+            color: #f44336;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .question-counter {
+            color: #999;
+            font-size: 12px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .buttons-container {
+            display: flex;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .question-text {
+                font-size: 16px;
+            }
+
+            .buttons-container {
+                flex-direction: row;
+                gap: 12px;
+            }
+
+            .btn-prev {
+                order: 0;
+            }
+
+            .btn-next {
+                order: 0;
+                flex: 1;
+            }
+
+            .result-score {
+                font-size: 48px;
+            }
+
+            .result-percentage {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Formulário Interativo</h1>
+            <p>Governança de TI e ISO/IEC 38500</p>
+        </div>
+
+        <!-- Tela de Entrada de Nome -->
+        <div class="name-container" id="nameContainer">
+            <form class="name-form" onsubmit="startQuiz(event)">
+                <h2>Bem-vindo!</h2>
+                <p>Por favor, insira seu nome para começar o questionário</p>
+                <p style="color: #f44336;">*Os dados serão usados apenas para fins da apresentação e análise dos resultados.*</p>
+                <div class="form-group">
+                    <label for="userName">Seu Nome:</label>
+                    <input type="text" id="userName" placeholder="Digite seu nome completo" required autofocus>
+                </div>
+                <button type="submit" class="btn-start">Iniciar Questionário</button>
+            </form>
+        </div>
+
+        <!-- Tela do Quiz -->
+        <div class="quiz-container" id="quizContainer">
+            <div class="user-info" id="userInfo"></div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div id="questionsContainer"></div>
+
+            <div class="buttons-container" id="buttonsContainer">
+                <button class="btn-prev" id="btnPrev" onclick="previousQuestion()" style="display: none;">← Anterior</button>
+                <button class="btn-next" id="btnNext" onclick="nextQuestion()">Próxima →</button>
+            </div>
+
+            <div class="question-counter" id="questionCounter"></div>
+        </div>
+
+        <!-- Tela de Resultados -->
+        <div class="result-container" id="resultContainer">
+            <div class="result-user-name" id="resultUserName"></div>
+            <div class="result-score" id="resultScore"></div>
+            <div class="result-percentage" id="resultPercentage"></div>
+            <div class="result-message" id="resultMessage"></div>
+            <div class="result-details" id="resultDetails"></div>
+            <button class="btn-restart" onclick="restartQuiz()">Recomeçar Questionário</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Qual é o principal foco da ISO/IEC 38500:2024?",
+                options: [
+                    "Detalhar processos técnicos de implementação de TI.",
+                    "Fornecer princípios orientadores para o órgão governante sobre o uso da TI.",
+                    "Gerenciar projetos de desenvolvimento de software.",
+                    "Auditar a segurança de sistemas de informação."
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual a principal diferença entre Governança de TI e Gestão de TI?",
+                options: [
+                    "Governança define o 'Como' e a Gestão define o 'Quê'.",
+                    "Governança foca na execução operacional e a Gestão no controle estratégico.",
+                    "Governança define o 'Quê' e o 'Porquê', enquanto a Gestão define o 'Como' e o 'Quando'.",
+                    "Não há diferença significativa, são termos sinônimos."
+                ],
+                correct: 2
+            },
+            {
+                question: "O que significa a sigla EDM no contexto da ISO/IEC 38500?",
+                options: [
+                    "Estruturar, Desenvolver, Manter.",
+                    "Avaliar, Dirigir, Monitorar.",
+                    "Estabelecer, Desenvolver, Medir.",
+                    "Analisar, Decidir, Modificar."
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual dos seguintes não é um dos princípios da ISO/IEC 38500?",
+                options: [
+                    "Geração de Valor.",
+                    "Liderança.",
+                    "Detalhamento de Procedimentos Técnicos.",
+                    "Governança de Riscos."
+                ],
+                correct: 2
+            },
+            {
+                question: "A quem a ISO/IEC 38500 atribui a responsabilidade primária pela Governança de TI?",
+                options: [
+                    "Aos gerentes de projeto de TI.",
+                    "Aos técnicos de suporte.",
+                    "Ao órgão governante (alta direção).",
+                    "Aos desenvolvedores de software."
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual o objetivo do princípio de 'Engajamento' na ISO/IEC 38500?",
+                options: [
+                    "Garantir que apenas a equipe de TI esteja envolvida nas decisões.",
+                    "Considerar as necessidades e expectativas de todas as partes interessadas (stakeholders).",
+                    "Focar exclusivamente nos objetivos financeiros da organização.",
+                    "Reduzir a comunicação externa sobre o uso da TI."
+                ],
+                correct: 1
+            },
+            {
+                question: "A ISO/IEC 38500:2024 enfatiza que a TI deve ser vista como:",
+                options: [
+                    "Um centro de custo a ser minimizado.",
+                    "Um mero suporte operacional.",
+                    "Um motor estratégico para a inovação e geração de valor sustentável.",
+                    "Uma ferramenta exclusiva para automação de tarefas."
+                ],
+                correct: 2
+            },
+            {
+                question: "Qual a importância do princípio de 'Dados e Decisões'?",
+                options: [
+                    "Tomar decisões baseadas na intuição dos líderes.",
+                    "Garantir que as decisões de TI sejam baseadas em dados confiáveis e informações precisas.",
+                    "Priorizar a velocidade da decisão sobre a sua fundamentação.",
+                    "Limitar o acesso a dados para evitar sobrecarga de informação."
+                ],
+                correct: 1
+            },
+            {
+                question: "O que o princípio de 'Viabilidade e Desempenho ao longo do tempo' busca garantir?",
+                options: [
+                    "Que a TI seja estática e não sofra alterações.",
+                    "A sustentabilidade e adaptabilidade da TI, com gestão da obsolescência e inovação contínua.",
+                    "A dependência exclusiva de tecnologias legadas.",
+                    "A redução de investimentos em novas tecnologias."
+                ],
+                correct: 1
+            },
+            {
+                question: "Qual o resultado de uma governança de TI eficaz, segundo o artigo?",
+                options: [
+                    "Aumento da burocracia e lentidão nos processos.",
+                    "Desempenho eficaz, administração responsável e comportamento ético.",
+                    "Redução da autonomia dos departamentos de TI.",
+                    "Foco exclusivo na conformidade regulatória, ignorando a inovação."
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let userName = '';
+        // Cole a URL do seu Google Apps Script WebApp abaixo após deploy
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxxtcRP6PbDD9kDPHJDFFxueEE6SXvGSBThEDhRIbpawsZAwm6fF_GqoEERQyqzV6hdMQ/exec';
+
+        function startQuiz(event) {
+            event.preventDefault();
+            userName = document.getElementById('userName').value.trim();
+            
+            if (!userName) {
+                alert('Por favor, insira seu nome para continuar.');
+                return;
+            }
+
+            document.getElementById('nameContainer').classList.add('hidden');
+            document.getElementById('quizContainer').classList.add('active');
+            document.getElementById('userInfo').textContent = `Usuário: ${userName}`;
+
+            renderQuestion();
+            updateCounter();
+        }
+
+        function renderQuestion() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = `question-container ${index === currentQuestion ? 'active' : ''}`;
+                
+                let optionsHTML = '';
+                q.options.forEach((option, optionIndex) => {
+                    const isSelected = userAnswers[index] === optionIndex;
+                    optionsHTML += `
+                        <div class="option ${isSelected ? 'selected' : ''}" onclick="selectOption(${index}, ${optionIndex})">
+                            <input type="radio" id="option_${index}_${optionIndex}" name="question_${index}" value="${optionIndex}" ${isSelected ? 'checked' : ''}>
+                            <label for="option_${index}_${optionIndex}">${String.fromCharCode(97 + optionIndex)}) ${option}</label>
+                        </div>
+                    `;
+                });
+
+                questionDiv.innerHTML = `
+                    <div class="question-number">Pergunta ${index + 1} de ${questions.length}</div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="options">${optionsHTML}</div>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+
+            updateButtons();
+            updateProgress();
+        }
+
+        function selectOption(questionIndex, optionIndex) {
+            userAnswers[questionIndex] = optionIndex;
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            if (userAnswers[currentQuestion] === null) {
+                alert('Por favor, selecione uma resposta antes de continuar.');
+                return;
+            }
+
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+                updateCounter();
+            } else {
+                showResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+                updateCounter();
+            }
+        }
+
+        function updateButtons() {
+            const btnPrev = document.getElementById('btnPrev');
+            const btnNext = document.getElementById('btnNext');
+
+            if (currentQuestion === 0) {
+                btnPrev.style.display = 'none';
+            } else {
+                btnPrev.style.display = 'block';
+            }
+
+            if (currentQuestion === questions.length - 1) {
+                btnNext.textContent = 'Finalizar';
+            } else {
+                btnNext.textContent = 'Próxima →';
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateCounter() {
+            const answered = userAnswers.filter(a => a !== null).length;
+            document.getElementById('questionCounter').textContent = `${answered} de ${questions.length} perguntas respondidas`;
+        }
+
+        function showResults() {
+            let correctCount = 0;
+            let resultDetailsHTML = '<h3>Revisão da Apresentação:</h3>';
+
+            userAnswers.forEach((answer, index) => {
+                if (answer === questions[index].correct) {
+                    correctCount++;
+                    resultDetailsHTML += `<div class="result-item correct">✓ Pergunta ${index + 1}: Correta</div>`;
+                } else {
+                    resultDetailsHTML += `<div class="result-item incorrect">✗ Pergunta ${index + 1}: Incorreta (Resposta correta: ${String.fromCharCode(97 + questions[index].correct)})</div>`;
+                }
+            });
+
+            const percentage = (correctCount / questions.length) * 100;
+            let message = '';
+
+            if (percentage === 100) {
+                message = '🎉 Excelente! Você compreendeu muito bem os pontos da apresentação.';
+            } else if (percentage >= 80) {
+                message = '👏 Muito bom! Você absorveu bem o conteúdo apresentado.';
+            } else if (percentage >= 60) {
+                message = '👍 Bom! Você entendeu a maior parte da apresentação.';
+            } else if (percentage >= 40) {
+                message = '📚 Você pode reforçar alguns pontos da apresentação.';
+            } else {
+                message = '💪 Refaça a apresentação e revise os pontos principais com mais atenção.';
+            }
+
+            document.getElementById('resultUserName').textContent = `Parabéns, ${userName}!`;
+            document.getElementById('resultScore').textContent = `${correctCount}/${questions.length}`;
+            document.getElementById('resultPercentage').textContent = `${percentage.toFixed(1)}%`;
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultDetails').innerHTML = resultDetailsHTML;
+
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('resultContainer').classList.add('active');
+
+            // Envia os resultados ao Google Sheets via Apps Script (se a URL estiver configurada)
+            if (GOOGLE_APPS_SCRIPT_URL && GOOGLE_APPS_SCRIPT_URL.length > 10) {
+                try {
+                    const payload = {
+                        name: userName,
+                        score: correctCount,
+                        percentage: Number(percentage.toFixed(1)),
+                        answers: userAnswers.map(a => a === null ? null : String.fromCharCode(97 + a)),
+                        timestamp: new Date().toISOString()
+                    };
+
+                    fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }).then(resp => {
+                        // opcional: tratar resposta do Apps Script
+                        return resp.json().catch(() => ({}));
+                    }).then(data => {
+                        console.log('Resultado enviado ao Sheets:', data);
+                    }).catch(err => console.warn('Erro ao enviar resultados:', err));
+                } catch (e) {
+                    console.warn('Envio assíncrono falhou:', e);
+                }
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            userName = '';
+            
+            document.getElementById('nameContainer').classList.remove('hidden');
+            document.getElementById('quizContainer').classList.remove('active');
+            document.getElementById('resultContainer').classList.remove('active');
+            document.getElementById('userName').value = '';
+            document.getElementById('userName').focus();
+        }
+    </script>
+</body>
+</html>
