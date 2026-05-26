@@ -17,7 +17,16 @@ function doPost(e) {
 
     var data = {};
     if (e.postData && e.postData.contents) {
-      data = JSON.parse(e.postData.contents);
+      var contentType = (e.postData.type || '').toLowerCase();
+      var rawBody = e.postData.contents;
+
+      if (contentType.indexOf('application/json') !== -1 || contentType.indexOf('text/plain') !== -1 || contentType === '') {
+        data = JSON.parse(rawBody);
+      } else if (contentType.indexOf('application/x-www-form-urlencoded') !== -1) {
+        data = e.parameter || {};
+      } else {
+        data = JSON.parse(rawBody);
+      }
     } else if (e.parameter) {
       data = e.parameter;
     }
